@@ -322,19 +322,6 @@ def terminate():
     os.chdir(os.path.join(config['cli_dir'], const.CLI_NAME))
     terminate_proces()
     click.secho(('Yanr is deactivate from this project.'), fg=const.INFO_CLR)
-
-@main.command()
-@click.option('--operatingsys', '-os', is_flag=True, help='Your operatingssystem')
-def install_yanr(operatingsys):
-    """
-    Make yanr executable from anywhere in de command line.
-    Ex. users/computer/Documents/project_creator>python proj_creator.py install_yanr -os(for linux and mac users)
-    if project_creator map is in your Documnnets
-    """
-    if operatingsys:
-        os.system('pip install --editable . --user')
-    else:
-        os.system('pip install --editable .')
     
     
 # from bank_cli import *

@@ -20,5 +20,21 @@ def main(name):
     else:
         pass
     
+@main.command()
+@click.option('--operatingsys', '-os', is_flag=True, help='Your operatingssystem, don t use it in a venv')
+def install_yanr(operatingsys):
+    """
+    Make yanr executable from anywhere in de command line.
+    Ex. users/computer/Documents/project_creator>python proj_creator.py install_yanr -os(for linux and mac users)
+    if project_creator map is in your Documnnets
+    """
+    if operatingsys:
+        os.system('pip install --editable . --user')
+    else:
+        os.system('pip install --editable .')
+    
 from scripts.proj_creator import *
 from scripts.bank_cli import *
+
+if __name__ == '__main__':
+    main()
