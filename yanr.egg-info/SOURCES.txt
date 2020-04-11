@@ -1,0 +1,9 @@
+setup.py
+scripts/bank_cli.py
+scripts/proj_creator.py
+yanr.egg-info/PKG-INFO
+yanr.egg-info/SOURCES.txt
+yanr.egg-info/dependency_links.txt
+yanr.egg-info/entry_points.txt
+yanr.egg-info/requires.txt
+yanr.egg-info/top_level.txt
