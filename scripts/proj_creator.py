@@ -58,6 +58,27 @@ def vue_init(proj_name, osys):
 @click.option('--operatingsys', '-os', is_flag=True, help='Give this option if your OS is Linux base distribution, it will install he packages with sudo')
 @click.pass_context
 def create(ctx, proj_name, path, operatingsys):
+
+    """
+    \b
+    create cmd optional arguments:
+    \b
+    -dj (create a django base project):
+        # --packages, -p   : Install additional packages (max=2). See also yanr packages --help for more information about packages install
+        
+        # --req, -rq       : (default=requirements.txt)  pip freeze all your dependenties in a txt file, the default is requirements.txt, specify this option when you want another name. 
+        
+        # --frontend, -fr  : (default=False)  Install vue.js as frontend framework in django project if it is specify.  
+        
+        # --drestapi, -dra : Initialize the django project with a given restfull api framework.
+    \b  
+    -vue (create a vue.js base project):
+        # No optional option
+    \b
+    -scrp (create a simple python scripting project):
+        # No optional option
+    """
+
     ctx.ensure_object(dict) #send data to nested command
     config = fs.read_config()
     ctx.obj['operatingsys'] = operatingsys
@@ -89,7 +110,7 @@ def create(ctx, proj_name, path, operatingsys):
         elif path != None:
             fs.store_dataIn_configFile(ctx, path, proj_name)
     
-@create.command('-dj')
+@create.command('dj')
 @click.option('--packages', '-pk', nargs=2, default='basic', help='Install additional packages (max=2). See also yanr packages --help for more information about packages install')
 @click.option('--req', '-rq', default='requirements.txt', help='pip freeze all your dependenties in a txt file, the default is requirements.txt, specify this option when you want another name.')
 @click.option('--frontend', '-fr', is_flag=True, help='Install vue.js as frontend framework in django project if it is specify.')
@@ -163,7 +184,7 @@ def django(ctx, req, packages, frontend, drestapi):
     # os.system(f'pipenv run pip freeze > {req}')
     # create_with_git()
 
-@create.command('-vue')
+@create.command('vue')
 @click.pass_context
 def vue(ctx):
     """
@@ -174,7 +195,7 @@ def vue(ctx):
     vue_init(proj_name, ctx.obj['operatingsys'])
     # create_with_git()
 
-@create.command('-scrp')
+@create.command('scrp')
 @click.pass_context
 def scripting(ctx):
     """
@@ -208,9 +229,24 @@ def scripting(ctx):
 
 @main.group()
 @click.option('--username', '-u') # help='GitHub username'
-@click.option('--password', '-p', prompt='GitHub password', hide_input=True)
+@click.option('--password', '-p', hide_input=True)
 @click.pass_context
 def git_repo(ctx, username, password):
+    """
+    Add your project to GitHub
+    \b
+    git-repo commands optionals arguments
+    \b
+    add (create a new GitHub repository and add the project to it):
+        # --repositoryname, -rn : let you choose a name for your new github repository, if you do't specify it the project name is used as name for the new repository
+        
+        # --readme, -rm         : Initialize your repository with a readme
+        
+        # --commit, -cm         : The first commit (default=First commit)
+    \b
+    del (delete the given repository name from GitHub):
+        # reponame : Is an argument not optional, it has to be specified
+    """
     ctx.ensure_object(dict)
     config = fs.read_config()
     
@@ -219,11 +255,14 @@ def git_repo(ctx, username, password):
     ctx.obj['password'] = password
 
 @git_repo.command('add')  
-@click.option('--repositoryname', '-rn') # help='Use project name store in config file when no name specify'
-@click.option('--readme', '-rm', is_flag=True)
-@click.option('--commit', '-cm', default='First commit')
+@click.option('--repositoryname', '-rn', help='let you choose a name for your new github repository, if you don t specify it the project name is used as name for the new repository') # help='Use project name store in config file when no name specify'
+@click.option('--readme', '-rm', is_flag=True, help='Initialize your repository with a readme')
+@click.option('--commit', '-cm', default='First commit', help='The first commit (default=First commit)')
 @click.pass_context
 def create_repo(ctx, repositoryname,  readme, commit):
+    """
+    
+    """
     config = fs.read_config()
         
     repository_name = gw.get_repo_name(repositoryname)
@@ -232,12 +271,18 @@ def create_repo(ctx, repositoryname,  readme, commit):
         # if ctx.obj['repoName'] == None or config['username'] == None and config['password'] == None:
         if config['username'] == None and config['password'] == None:
             # gw.git_automation(repository_name, ctx.obj['username'], ctx.obj['password'], readme, commit)
-            if ctx.obj['username'] == None:
+            if ctx.obj['username'] == None and ctx.obj['password'] == None:
+                username_input = click.prompt('Github username')
+                pass_input = click.prompt('Github password')
+                gw.git_automation(repository_name, username_input, pass_input, readme, commit)
+            elif ctx.obj['password'] == None and ctx.obj['password'] != None:
                 username_input = click.prompt('Github username')
                 gw.git_automation(repository_name, username_input, ctx.obj['password'], readme, commit)
-            elif ctx.obj['password'] == None:
-                pass_input = click.prompt('Github username')
-                gw.git_automation(repository_name, ctx.obj['username'], pass_input, readme, commit)
+            elif ctx.obj['password'] != None and ctx.obj['password'] == None:
+                pass_input = click.prompt('Github password')
+                gw.git_automation(repository_name, ctx.obj['username'],pass_input, readme, commit)
+            else:
+                gw.git_automation(repository_name, ctx.obj['username'],ctx.obj['password'], readme, commit)
         else:
             click.secho(('4'), fg=const.ERROR_CLR)
             gw.git_automation(repository_name, config['username'], config['password'], readme, commit)
@@ -267,7 +312,8 @@ def abort_if_false(ctx, param, value):
 @click.pass_context
 def delete_repo(ctx, reponame):
     """
-    Delete project Github repository
+    delete the given repository name from GitHub
+        # reponame : Is an argument not optional, it has to be specified
     """
     if ctx.obj['username'] == None:
         user_name = click.prompt('GitHub username')
@@ -309,6 +355,14 @@ def global_config(username, password, projectdir):
         click.secho(('None of the option is given, see'), fg=const.INFO_CLR)
         click.secho(('yanr global_config --help'), fg=const.CMD_CLR)
         click.secho(('for more information'), fg=const.INFO_CLR)
+        
+# @main.command()
+# def go():
+#     """
+#     implemente with a db, it wil get all your project created with yanrand go to it in the cmd
+#     it will also reinialize the project to been used again with yanr en open it in a browser (if it is a web project)
+#     and in your default text editor or given
+#     """
     
     
 @main.command()

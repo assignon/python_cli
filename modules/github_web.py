@@ -72,8 +72,8 @@ def git_automation(reponame, username, password, readme, commit):
     options.add_argument("--headless")
     caps = webdriver.DesiredCapabilities().FIREFOX
     caps["marionette"] = True
-    # browser = webdriver.Firefox(firefox_options=options, capabilities=caps, executable_path=r"./geckodriver") #without opening the browser
-    browser = webdriver.Firefox(executable_path='./geckodriver')#penig the browser
+    browser = webdriver.Firefox(firefox_options=options, capabilities=caps, executable_path=r"./geckodriver") #without opening the browser
+    # browser = webdriver.Firefox(executable_path='./geckodriver')#penig the browser
     # browser.set_window_size(900, 900)
     browser.get('https://github.com/login')
     

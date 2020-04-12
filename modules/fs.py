@@ -32,17 +32,25 @@ def check_path(proj_name, path, directory):
     return status
 
 def update_configFile(key, value):
-    with open (const.CONFIG_PATH, 'r') as f:
-        data = json.load(f)
-        # print(data['project_dir'])
-        data[key] = value
-        with open(const.CONFIG_PATH, 'w') as fw:
-            json.dump(data, fw)
+    try:
+        with open (const.CONFIG_PATH, 'r') as f:
+            data = json.load(f)
+            # print(data['project_dir'])
+            data[key] = value
+            with open(const.CONFIG_PATH, 'w') as fw:
+                json.dump(data, fw)
+    except FileNotFoundError as e:
+        print(e)
+        user_path = click.prompt('Enter the path to the python_cli folder')
             
 def read_config():
-    with open(const.CONFIG_PATH, 'r') as f:
-        config = json.load(f)
-    return config
+    try:
+        with open(const.CONFIG_PATH, 'r') as f:
+            config = json.load(f)
+        return config
+    except FileNotFoundError as e:
+        print(e)
+        user_path = click.prompt('Enter the path to the python_cli folder')
 
 def store_data(ctx, path, proj_name):
     ctx.obj['proj_name'] = proj_name
