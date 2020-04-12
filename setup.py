@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='yanr',
-    version='0.01',
+    version='0.1.0',
     py_modules=[
         'scripts.proj_creator',
         'scripts.bank_cli'
