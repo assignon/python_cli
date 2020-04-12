@@ -102,26 +102,26 @@ import entrypoint
     # with open('global_config.json', 'w') as fw:
     #     json.dump(data, fw)
     
-with open('modules/constants.py', 'r') as fr:
-    new_file_content = ''
-    data = fr.readlines()
-    print(data[6])
-    # for line in fr:
-    #   stripped_line = line.strip()
-    #   print(stripped_line)
-    # new_line = stripped_line.replace("os.path.abspath('global_config.json')", '/home/yanick.py/Dev/cli_creator/global_config.json')
-    # new_file_content += new_line +"\n"
+# with open('modules/constants.py', 'r') as fr:
+#     new_file_content = ''
+#     data = fr.readlines()
+#     print(data[6])
+#     # for line in fr:
+#     #   stripped_line = line.strip()
+#     #   print(stripped_line)
+#     # new_line = stripped_line.replace("os.path.abspath('global_config.json')", '/home/yanick.py/Dev/cli_creator/global_config.json')
+#     # new_file_content += new_line +"\n"
     
-    with open('modules/constants.py', 'w') as fw:
-        try:
-            data[6] = """
-                CONFIG_PATH = '/home/yanick.py/Dev/cli_creator/global_config.json'
-            """
-            fw.writelines(data[6])
-        except SyntaxError as e:
-            print(e)
+#     with open('modules/constants.py', 'w') as fw:
+#         try:
+#             data[6] = """
+#                 CONFIG_PATH = '/home/yanick.py/Dev/cli_creator/global_config.json'
+#             """
+#             fw.writelines(data[6])
+#         except SyntaxError as e:
+#             print(e)
     
-        # newpath = data.replace(data[6], CONFIG_PATH = '/home/yanick.py/Dev/cli_creator/global_config.json')
-        print(data[6])
+#         # newpath = data.replace(data[6], CONFIG_PATH = '/home/yanick.py/Dev/cli_creator/global_config.json')
+#         print(data[6])
         
 
