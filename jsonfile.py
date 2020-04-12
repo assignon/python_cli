@@ -124,4 +124,15 @@ import entrypoint
 #         # newpath = data.replace(data[6], CONFIG_PATH = '/home/yanick.py/Dev/cli_creator/global_config.json')
 #         print(data[6])
         
+# cfg = click.get_app_dir('cli_creator')
+# print(cfg)
+# with open(cfg, 'r') as f:
+#     print(json.load(f))
 
+# userinput = click.secho(('are you sure'), fg='red')
+# click.prompt('userinput')
+
+from modules import fs
+config = fs.read_config()
+pipfile = os.path.join(config['current_project_dir'], config['project_name']+'/Pipfile')
+print(pipfile)

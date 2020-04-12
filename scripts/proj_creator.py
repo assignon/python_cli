@@ -26,7 +26,15 @@ def python_frameworksBasic_install():
     os.system('pip install pipenv')
     #activate virtual env
     os.system('exit') #exit Venv if it already actvated
-    os.system('pipenv shell')
+    # os.system('pipenv lock --clear')
+    
+def create_pipfile(path, pkg):
+    #if for any reason pipfile and pipfile.lock does'n appear in the project
+    #directory this function will create it and install the dependenties
+    if os.path.exists(path):
+        pass
+    else:
+        os.system(f'pipenv install {pkg}')
     
 def vue_init(proj_name, osys):
     user_package = click.prompt('Vue cli need a package manager to be installed. Do you wanna installed with NPM or YARN? [npm/yarn]')
@@ -51,7 +59,7 @@ def vue_init(proj_name, osys):
             click.secho(('Command not recognize, you have to choose npm or yarn.'), fg=const.ERROR_CLR)
 
 
-@main.group()
+@main.group(chain=True)
 # @click.option('--hashtype', type=click.Choice(['MD5', 'SHA1'], case_sensitive=False))
 @click.argument('proj_name')
 @click.option('--path', '-pa', help='Path of the directory where the project gona be stored')
@@ -111,44 +119,36 @@ def create(ctx, proj_name, path, operatingsys):
             fs.store_dataIn_configFile(ctx, path, proj_name)
     
 @create.command('dj')
-@click.option('--packages', '-pk', nargs=2, default='basic', help='Install additional packages (max=2). See also yanr packages --help for more information about packages install')
+# @click.option('--packages', '-pk', nargs=2, default='basic', help='Install additional packages (max=2). See also yanr packages --help for more information about packages install')
 @click.option('--req', '-rq', default='requirements.txt', help='pip freeze all your dependenties in a txt file, the default is requirements.txt, specify this option when you want another name.')
 @click.option('--frontend', '-fr', is_flag=True, help='Install vue.js as frontend framework in django project if it is specify.')
 @click.option('--drestapi', '-dra', help='Initialize the django project with a given restfull api framework.')
 @click.pass_context
-def django(ctx, req, packages, frontend, drestapi):
+def django(ctx, req, frontend, drestapi):
     """
     This command create a Django project with or without Vue.js.
     """
     config = fs.read_config()
+    pipfile_path = os.path.join(config['current_project_dir'], config['project_name']+'/Pipfile')
         
     proj_name = ctx.obj['proj_name']
     fs.check_path(ctx.obj['proj_name'], ctx.obj['path'], True)
     python_frameworksBasic_install()
     #install packages
-    if packages == 'basic':
-        os.system('pipenv install django')
-        os.system(f'django-admin startproject {proj_name}')
-        if frontend:
-            os.system('pipenv install djangorestframework')
-            os.chdir(os.path.join(config['current_project_dir'], proj_name))
-            vue_init('frontend', ctx.obj['operatingsys'])
+    os.system('pipenv install django')
+    # a implementer, si le nom du proj contient (-) le remplace avec (_)
+    os.system(f'pipenv run django-admin startproject {proj_name}')
+
+    if frontend:
+        os.system('pipenv install djangorestframework')
+        os.chdir(os.path.join(config['current_project_dir'], proj_name))
+        vue_init('frontend', ctx.obj['operatingsys'])
+        # create_pipfile(pipfile_path, 'django')
+        # create_pipfile(pipfile_path, 'djangorestframework')
              
-        if drestapi != None:
-            os.system(f'pipenv install {drestapi}')
-    else:
-        os.system('pipenv install django')
-        os.system(f'django-admin startproject {proj_name}')
-        if frontend:
-            os.system('pipenv install djangorestframework')
-            os.chdir(os.path.join(config['current_project_dir'], proj_name))
-            vue_init('frontend', ctx.obj['operatingsys'])
-        
-        if drestapi != None:
-            os.system(f'pipenv install {drestapi}')
-        #install user given packages
-        for package in packages:
-            os.system(f'pipenv install {package}')
+    if drestapi != None:
+        os.system(f'pipenv install {drestapi}')
+
     os.system(f'pipenv run pip freeze > {req}')
     # create_with_git()
     
@@ -226,6 +226,17 @@ def scripting(ctx):
     # os.system('pipenv install selenium')
     # os.system('pipenv install setuptools')
     # create_with_git()
+    
+@create.command('pkg')
+@click.argument('packgs', nargs=-1)
+def packages(packgs):
+    """
+    Install additional packages
+    yanr packages --help for more information about packages install
+    """
+    config = fs.read_config()
+    for package in packgs:
+        os.system(f'pipenv install {package}')
 
 @main.group()
 @click.option('--username', '-u') # help='GitHub username'
@@ -309,17 +320,18 @@ def abort_if_false(ctx, param, value):
 @git_repo.command('del')
 @click.argument('reponame') # help='Use project name store in config file when no name specify'
 @click.option('--yes', is_flag=True, callback=abort_if_false, expose_value=False, prompt='Are you sure you want to remove the current repository from GitHub?')
+@click.option('--password', '-p', prompt='GitHub password', hide_input=True)
 @click.pass_context
-def delete_repo(ctx, reponame):
+def delete_repo(ctx, reponame, password):
     """
     delete the given repository name from GitHub
         # reponame : Is an argument not optional, it has to be specified
     """
     if ctx.obj['username'] == None:
         user_name = click.prompt('GitHub username')
-        gw.del_repo(user_name, ctx.obj['password'], reponame)
+        gw.del_repo(user_name, password, reponame)
     else:
-        gw.del_repo(ctx.obj['username'], ctx.obj['password'], reponame)
+        gw.del_repo(ctx.obj['username'], password, reponame)
         
     config = fs.read_config()
     try:
