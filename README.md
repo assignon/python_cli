@@ -26,6 +26,9 @@ Run the following command to install it on your machine to be able to run it fro
 
 make sure you are in the python_cli directory in your cmd </br>
 
+pipenv shell
+pipenv install Click setuptools selenium colorama
+
 for Windows users</br>
 python entrypoint.py install-yanr</br>
 
