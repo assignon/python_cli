@@ -5,13 +5,14 @@ from selenium.webdriver.firefox.options import Options
 import time, click, os, sys, shutil, fnmatch, json, shutil
 from modules import fs, constants as const
 
-def get_repo_name(repoName):
-    config = fs.read_config()
+def get_repo_name(repoName, path):
+    config = fs.read_yaml(path)
         
     if repoName == None:
         repoName = config['project_name']
     elif config['project_name'] == None:
-        repoName = click.prompt('Enter a repository name')
+        reponame = click.prompt('Enter a repository name')
+        repoName = reponame
     else:
         repoName = repoName
         

@@ -1,9 +1,9 @@
 import json
-import click, os, subprocess
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
+import os, subprocess
+# from selenium import webdriver
+# from selenium.webdriver.firefox.options import Options
 import time
-import entrypoint
+# import entrypoint
 
 # # --| Setup
 # options = Options()
@@ -132,7 +132,27 @@ import entrypoint
 # userinput = click.secho(('are you sure'), fg='red')
 # click.prompt('userinput')
 
-from modules import fs
-config = fs.read_config()
-pipfile = os.path.join(config['current_project_dir'], config['project_name']+'/Pipfile')
-print(pipfile)
+# from modules import fs
+import yaml
+# config = fs.read_config()
+# pipfile = os.path.join(config['current_project_dir'], config['project_name']+'/Pipfile')
+# print(pipfile)
+
+# dict_file = [{'sports' : ['soccer', 'football', 'basketball', 'cricket', 'hockey', 'table tennis']},
+# {'countries' : ['Pakistan', 'USA', 'India', 'China', 'Germany', 'France', 'Spain']}]
+
+# with open('.yaml', 'w') as f:
+#     yaml.dump(dict_file, f)
+    
+# with open('.yaml', 'r') as f:
+#     data = yaml.full_load(f)
+#     print(data[0]['sports'][0])
+#     data[0]['sports'][0] = 'Footbal'
+#     with open('.yaml', 'w') as fw:
+#         yaml.dump(data, fw)
+#         print(data[0]['sports'][0])
+
+    # // "current_project_dir": "/home/yanick.py/Dev/portfolio",
+    # //  "project_name": "portfolio", 
+    # //  "yanr_init": true, 
+    

@@ -1,6 +1,7 @@
-import time, click, os, sys, shutil, fnmatch, json
+import time, click, os, sys, shutil, fnmatch, json, datetime
 from modules import fs, constants as const, github_web as gw
 from entrypoint import main
+from scripts.data_base import DataBase as db
             
 def terminate_proces():
     """
@@ -9,12 +10,12 @@ def terminate_proces():
     """
 
     config = fs.read_config()
-    fs.update_configFile('current_project_dir', None)
-    fs.update_configFile('project_name', None)
-    fs.update_configFile('yanr_init', False)
+    # fs.update_configFile('current_project_dir', None)
+    # fs.update_configFile('project_name', None)
+    # fs.update_configFile('yanr_init', False)
         
 def create_with_git():
-    user_input = click.prompt('Add the project directly to git?[y/N]')
+    user_input = click.prompt('Add the project directly to GitHub?[y/N]')
     if user_input == 'y':
         os.chdir(os.path.join(os.path.getcwd(), const.CLI_NAME))
         os.system('yanr git-repo add -rm')
@@ -90,33 +91,46 @@ def create(ctx, proj_name, path, operatingsys):
     ctx.ensure_object(dict) #send data to nested command
     config = fs.read_config()
     ctx.obj['operatingsys'] = operatingsys
-    if config['yanr_init']:
-        click.secho(('The {} project is already initialized but not yet added to Git'.format(config['project_name'])),fg=const.INFO_CLR, bg='white')
-        click.secho(('yanr git_repo --help for more information'.format(config['project_name'])),fg=const.CMD_CLR)
-        click.secho(('Or you have to terminate the ongoing proces to be able to create a new project.'),fg=const.INFO_CLR, bg='white')
-        click.secho(('yanr terminate --help for more information'),fg=const.CMD_CLR)
-        # user_input = click.prompt('Are you sure you don t want to add the current project to Git? [y/N]:')
-        # if user_input == 'y':
-        #     os.chdir(os.path.join(config['cli_dir'], const.CLI_NAME))
-        #     terminate_proces()
-        # elif user_input == 'N':
-        #     sys.exit('See yanr git_repo --help for more detail')
-        # else:
-        #     click.secho(('Command don t exist'), fg=const.ERROR_CLR, bold=True)
-        sys.exit()
-    else:
-        if path == None and config['project_dir'] == None:
-            path = click.prompt('Enter the path to the directory where you want the project to be stored')
-            fs.store_dataIn_configFile(ctx, path, proj_name)
-            default_path = click.prompt('Do you wanna use this path als defalt project path?[y/N')
-            if default_path == 'y':
-                fs.update_configFile('project_dir', path )
-            else:
-                pass
-        elif config['project_dir'] != None:
-            fs.store_dataIn_configFile(ctx, config['project_dir'], proj_name)
-        elif path != None:
-            fs.store_dataIn_configFile(ctx, path, proj_name)
+    # if config['yanr_init']:
+    #     click.secho(('The {} project is already initialized but not yet added to Git'.format(config['project_name'])),fg=const.INFO_CLR, bg='white')
+    #     click.secho(('yanr git_repo --help for more information'.format(config['project_name'])),fg=const.CMD_CLR)
+    #     click.secho(('Or you have to terminate the ongoing proces to be able to create a new project.'),fg=const.INFO_CLR, bg='white')
+    #     click.secho(('yanr terminate --help for more information'),fg=const.CMD_CLR)
+    #     # user_input = click.prompt('Are you sure you don t want to add the current project to Git? [y/N]:')
+    #     # if user_input == 'y':
+    #     #     os.chdir(os.path.join(config['cli_dir'], const.CLI_NAME))
+    #     #     terminate_proces()
+    #     # elif user_input == 'N':
+    #     #     sys.exit('See yanr git_repo --help for more detail')
+    #     # else:
+    #     #     click.secho(('Command don t exist'), fg=const.ERROR_CLR, bold=True)
+    #     sys.exit()
+    # else:
+    #     if path == None and config['project_dir'] == None:
+    #         path = click.prompt('Enter the path to the directory where you want the project to be stored')
+    #         fs.store_dataIn_configFile(ctx, path, proj_name)
+    #         default_path = click.prompt('Do you wanna use this path als defalt project path?[y/N')
+    #         if default_path == 'y':
+    #             fs.update_configFile('project_dir', path )
+    #         else:
+    #             pass
+    #     elif config['project_dir'] != None:
+    #         fs.store_dataIn_configFile(ctx, config['project_dir'], proj_name)
+    #     elif path != None:
+    #         fs.store_dataIn_configFile(ctx, path, proj_name)
+    
+    if path == None and config['project_dir'] == None:
+        path = click.prompt('Enter the path to the directory where you want the project to be stored')
+        fs.store_dataIn_configFile(ctx, path, proj_name)
+        default_path = click.prompt('Do you wanna use this path als defalt project path?[y/N')
+        if default_path == 'y':
+            fs.update_configFile('project_dir', path )
+        else:
+            pass
+    elif config['project_dir'] != None:
+        fs.store_dataIn_configFile(ctx, config['project_dir'], proj_name)
+    elif path != None:
+        fs.store_dataIn_configFile(ctx, path, proj_name)
     
 @create.command('dj')
 # @click.option('--packages', '-pk', nargs=2, default='basic', help='Install additional packages (max=2). See also yanr packages --help for more information about packages install')
@@ -129,7 +143,7 @@ def django(ctx, req, frontend, drestapi):
     This command create a Django project with or without Vue.js.
     """
     config = fs.read_config()
-    pipfile_path = os.path.join(config['current_project_dir'], config['project_name']+'/Pipfile')
+    # pipfile_path = os.path.join(config['current_project_dir'], config['project_name']+'/Pipfile')
         
     proj_name = ctx.obj['proj_name']
     fs.check_path(ctx.obj['proj_name'], ctx.obj['path'], True)
@@ -141,7 +155,8 @@ def django(ctx, req, frontend, drestapi):
 
     if frontend:
         os.system('pipenv install djangorestframework')
-        os.chdir(os.path.join(config['current_project_dir'], proj_name))
+        current_project_dir = os.path.join(ctx.obj['path'], proj_name)
+        os.chdir(os.path.join(current_project_dir, proj_name))
         vue_init('frontend', ctx.obj['operatingsys'])
         # create_pipfile(pipfile_path, 'django')
         # create_pipfile(pipfile_path, 'djangorestframework')
@@ -150,6 +165,8 @@ def django(ctx, req, frontend, drestapi):
         os.system(f'pipenv install {drestapi}')
 
     os.system(f'pipenv run pip freeze > {req}')
+    fs.create_yanr_file(os.path.join(ctx.obj['path'], ctx.obj['proj_name']), ctx.obj['proj_name'], False)
+    db().insert(ctx.obj['proj_name'], ctx.obj['path'], 0, datetime.datetime.now().strftime("%Y-%M-%d|%H:%M:%S"))
     # create_with_git()
     
 
@@ -193,6 +210,8 @@ def vue(ctx):
     proj_name = ctx.obj['proj_name']
     fs.check_path(ctx.obj['proj_name'], ctx.obj['path'], True)
     vue_init(proj_name, ctx.obj['operatingsys'])
+    fs.create_yanr_file(os.path.join(ctx.obj['path'], ctx.obj['proj_name']), ctx.obj['proj_name'], False)
+    db().insert(ctx.obj['proj_name'], ctx.obj['path'], 0, datetime.datetime.now().strftime("%Y-%M-%d-%H:%M:%S"))
     # create_with_git()
 
 @create.command('scrp')
@@ -275,11 +294,9 @@ def create_repo(ctx, repositoryname,  readme, commit):
     
     """
     config = fs.read_config()
-        
-    repository_name = gw.get_repo_name(repositoryname)
     
-    if config['yanr_init'] and os.path.exists(config['current_project_dir']):
-        # if ctx.obj['repoName'] == None or config['username'] == None and config['password'] == None:
+    if os.path.exists(os.path.join(os.getcwd(), '.yaml')):
+        repository_name = gw.get_repo_name(repositoryname, os.path.join(os.getcwd(), '.yaml'))
         if config['username'] == None and config['password'] == None:
             # gw.git_automation(repository_name, ctx.obj['username'], ctx.obj['password'], readme, commit)
             if ctx.obj['username'] == None and ctx.obj['password'] == None:
@@ -300,7 +317,7 @@ def create_repo(ctx, repositoryname,  readme, commit):
     else:
         click.secho(('None project initialize or project is deleted.'), fg=const.ERROR_CLR, bold=True)
         click.secho(('yanr terminate'), fg=const.INFO_CLR, bg='white')
-        click.secho(('to create a new one in tthe case the project directory path is ot right or the project is deleted from. Your current project directory is: {} or see yanr create --help for more information'.format(config['current_project_dir'])), fg=const.ERROR_CLR)
+        click.secho(('to create a new one in the case the project directory path is not right or the project is deleted. Your current project directory is: {} or see yanr create --help for more information'.format(config['current_project_dir'])), fg=const.ERROR_CLR)
 
     
 # @git_repo.command()
@@ -371,7 +388,7 @@ def global_config(username, password, projectdir):
 # @main.command()
 # def go():
 #     """
-#     implemente with a db, it wil get all your project created with yanrand go to it in the cmd
+#     implemente with a db, it wil get all your project created with yanr and go to it in the cmd
 #     it will also reinialize the project to been used again with yanr en open it in a browser (if it is a web project)
 #     and in your default text editor or given
 #     """
@@ -381,12 +398,12 @@ def global_config(username, password, projectdir):
 @click.option('--yes', is_flag=True, callback=abort_if_false, expose_value=False, prompt='Are you sure you want to terminate? You can t use yanr for this project anymore')
 def terminate():
     """
-    Set yarn config file to null to be able to create another project.
+    Remove .yaml of the project
     """
     config = fs.read_config()
         
-    os.chdir(os.path.join(config['cli_dir'], const.CLI_NAME))
-    terminate_proces()
+    # os.chdir(os.path.join(config['cli_dir'], const.CLI_NAME))
+    # terminate_proces()
     click.secho(('Yanr is deactivate from this project.'), fg=const.INFO_CLR)
     
     

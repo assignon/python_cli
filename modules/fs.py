@@ -1,4 +1,5 @@
 import time, click, os, sys, shutil, fnmatch, json, shutil
+import yaml
 import modules.constants as const
 
 def check_dir(name, path, directory):
@@ -42,6 +43,18 @@ def update_configFile(key, value):
     except FileNotFoundError as e:
         print(e)
         user_path = click.prompt('Enter the path to the python_cli folder')
+        
+def update_yamlFile(path, key, value):
+    try:
+        with open (path, 'r') as f:
+            data = yaml.full_load(f)
+            # print(data['project_dir'])
+            data[key] = value
+            with open(path, 'w') as fw:
+                yaml.dump(data, fw)
+    except FileNotFoundError as e:
+        print(e)
+        user_path = click.prompt('Enter the path to the python_cli folder')
             
 def read_config():
     try:
@@ -51,21 +64,30 @@ def read_config():
     except FileNotFoundError as e:
         print(e)
         user_path = click.prompt('Enter the path to the python_cli folder')
+        
+def read_yaml(path):
+    try:
+        with open(path, 'r') as f:
+            config = yaml.full_load(f)
+        return config
+    except FileNotFoundError as e:
+        print(e)
+        user_path = click.prompt('Enter the path to the python_cli folder')
 
 def store_data(ctx, path, proj_name):
     ctx.obj['proj_name'] = proj_name
     ctx.obj['path'] = path
     #update config file
-    update_configFile('project_name', proj_name)
-    update_configFile('yanr_init', True)
+    # update_configFile('project_name', proj_name)
+    # update_configFile('yanr_init', True)
     if path != None:
         ctx.obj['path'] = path 
         update_configFile('project_dir', path)
-        update_configFile('current_project_dir', os.path.join(path, proj_name))
+        # update_configFile('current_project_dir', os.path.join(path, proj_name))
     else:
         user_path = click.prompt('Enter the path to the directory where you want the project to be stored')
         update_configFile('project_dir', user_path)
-        update_configFile('current_project_dir', os.path.join(user_path, proj_name))
+        # update_configFile('current_project_dir', os.path.join(user_path, proj_name))
         ctx.obj['path'] = user_path 
             
 def store_dataIn_configFile(ctx, path, proj_name):
@@ -74,5 +96,14 @@ def store_dataIn_configFile(ctx, path, proj_name):
         store_data(ctx, path, proj_name)
     else:
         #if the path don't exist, the project are been sended to
-        #the framework function en is checked again with the fs.check_path function.
+        #the framework function and is checked again with the fs.check_path function.
         store_data(ctx, path, proj_name)
+        
+def create_yanr_file(path, proj_name, on_github):
+    with open(os.path.join(path, '.yaml'), 'w') as f:
+        proj_data = {
+            'project_name': proj_name,
+            'project_dir': path,
+            'on_github': on_github
+        }
+        yaml.dump(proj_data, f)
