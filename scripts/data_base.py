@@ -53,7 +53,7 @@ class DataBase:
     def drop_db(self, tablename):
         self.cursor.execute("DROP TABLE {}".format(tablename))
 
-now = datetime.datetime.now()  
+# now = datetime.datetime.now()  
 # DataBase().create_table()
 # DataBase().insert('test', '/home/yanick.py/Dev/test', 0, now.strftime("%Y-%M-%d-%H:%M:%S"))
 # for p in DataBase().select(False).fetchall():
