@@ -135,4 +135,4 @@ def del_repo(username, password, repoName):
         confirm_btn.click()
         click.secho((f'Repository {repoName} delected succesfully'), fg=const.SUCCES_CLR)
         
-# gw.git_automation('test', 'assignon', 'Serges@007', True, 'First commit')
+# gw.git_automation('test', 'assignon', '', True, 'First commit')
