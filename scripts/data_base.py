@@ -24,12 +24,12 @@ class DataBase:
     def db_instance(self):
         return self.cursor
      
-    def select(self, clause, **kwargs):
+    def select(self, prepare, **kwargs):
         """
-        @clause(bool): determine if the query is a prepare statement or not
+        @prepare(bool): determine if the query is a prepare statement or not
         @kwargs: a dict of the query where conditions
         """
-        if clause:
+        if prepare:
             data = self.cursor.execute("SELECT * from projects WHERE dict(kwargs)")
         else:
             data = self.cursor.execute("SELECT * from projects")
@@ -50,7 +50,7 @@ class DataBase:
         print('record added')
         self.cursor.close()
         
-    def drop_db(self, tablename):
+    def drop_table(self, tablename):
         self.cursor.execute("DROP TABLE {}".format(tablename))
 
 # now = datetime.datetime.now()  

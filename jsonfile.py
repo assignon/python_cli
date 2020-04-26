@@ -1,9 +1,13 @@
-import json
+import json, click
 import os, subprocess
 # from selenium import webdriver
 # from selenium.webdriver.firefox.options import Options
 import time
 # import entrypoint
+
+# click.edit(filename='/home/yanick.py/Dev')
+# click.launch("https://click.palletsprojects.com/")
+click.launch("/home/yanick.py/Dev/test", locate=True)
 
 # # --| Setup
 # options = Options()

@@ -50,7 +50,7 @@ def vue_init(proj_name, osys):
             break
         elif user_package == 'yarn':
             if osys:
-                os.system('sudo yarn global add @vue/cli')
+                os.system('sudo yarn global add @vue/cli');
                 os.system('vue create {}'.format(proj_name))
             else:
                 os.system('yarn global add @vue/cli')
@@ -211,7 +211,7 @@ def vue(ctx):
     fs.check_path(ctx.obj['proj_name'], ctx.obj['path'], True)
     vue_init(proj_name, ctx.obj['operatingsys'])
     fs.create_yanr_file(os.path.join(ctx.obj['path'], ctx.obj['proj_name']), ctx.obj['proj_name'], False)
-    db().insert(ctx.obj['proj_name'], ctx.obj['path'], 0, datetime.datetime.now().strftime("%Y-%M-%d-%H:%M:%S"))
+    db().insert(ctx.obj['proj_name'], ctx.obj['path'], 0, datetime.datetime.now().strftime("%Y-%M-%d|%H:%M:%S"))
     # create_with_git()
 
 @create.command('scrp')
@@ -290,8 +290,13 @@ def git_repo(ctx, username, password):
 @click.option('--commit', '-cm', default='First commit', help='The first commit (default=First commit)')
 @click.pass_context
 def create_repo(ctx, repositoryname,  readme, commit):
-    """
-    
+    """[summary]
+
+    Arguments:
+        ctx {[type]} -- [description]
+        repositoryname {[type]} -- [description]
+        readme {[type]} -- [description]
+        commit {[type]} -- [description]
     """
     config = fs.read_config()
     

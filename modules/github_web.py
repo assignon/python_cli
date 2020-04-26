@@ -12,6 +12,7 @@ def get_repo_name(repoName, path):
         repoName = config['project_name']
     elif config['project_name'] == None:
         reponame = click.prompt('Enter a repository name')
+        fs.update_yamlFile(path, 'project_name', reponame)
         repoName = reponame
     else:
         repoName = repoName
@@ -135,4 +136,4 @@ def del_repo(username, password, repoName):
         confirm_btn.click()
         click.secho((f'Repository {repoName} delected succesfully'), fg=const.SUCCES_CLR)
         
-# gw.git_automation('test', 'assignon', 'Serges@007', True, 'First commit')
+# gw.git_automation('test', 'assignon', '', True, 'First commit')

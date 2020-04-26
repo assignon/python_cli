@@ -27,7 +27,8 @@ def main(name):
 
 
 @main.command()  
-def init():
+@click.option('--projectpath', '-pp', help='The path to the project. If is not given initialize yanr in the cwd')
+def init(projectpath):
     """
     initialize a project who is not created  with yanr with yanr to be able to user
     yanr inside it
@@ -52,8 +53,13 @@ def init():
         else:
             proj_name = os.path.basename(cwd)
             
-        fs.create_yanr_file(cwd, proj_name, proj_on_github)
-        db().insert(proj_name, cwd, 0, datetime.datetime.now().strftime("%Y-%M-%d|%H:%M:%S"))
+        if projectpath == None:
+            fs.create_yanr_file(cwd, proj_name, proj_on_github)
+            db().insert(proj_name, cwd, 0, datetime.datetime.now().strftime("%Y-%m-%d|%H:%M:%S"))
+        else:
+            fs.create_yanr_file(projectpath, proj_name, proj_on_github)
+            db().insert(proj_name, projectpath, 0, datetime.datetime.now().strftime("%Y-%m-%d|%H:%M:%S"))
+            
         click.secho(('Project succesfully initialezed. yanr info to view alle info about the project'), fg=const.SUCCES_CLR)
         #add it to db
             

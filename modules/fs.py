@@ -104,6 +104,7 @@ def create_yanr_file(path, proj_name, on_github):
         proj_data = {
             'project_name': proj_name,
             'project_dir': path,
-            'on_github': on_github
+            'on_github': on_github,
+            'repository_name': None
         }
         yaml.dump(proj_data, f)
