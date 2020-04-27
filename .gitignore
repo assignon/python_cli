@@ -1,0 +1,4 @@
+.vscode
+jsonfile.py
+global_config.json
+db.sqlite3

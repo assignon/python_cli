@@ -148,4 +148,4 @@ class DataBase:
 # )
 
 
-DataBase().delete('projects', 6)
+# DataBase().delete('projects', 6)
