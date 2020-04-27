@@ -30,17 +30,17 @@ def main(name):
 @click.option('--projectpath', '-pp', help='The path to the project. If is not given initialize yanr in the cwd')
 def init(projectpath):
     """
-    initialize a project who is not created  with yanr with yanr to be able to user
+    initialize a project who is not created  with yanr with yanr to be able to use
     yanr inside it
     """
     #check if .yaml file exist in the current foder
     cwd = os.getcwd() #current working dir
     current_dir = os.path.join(cwd, '.yaml')
-    if os.paths.exisits(current_dir):
+    if os.paths.exists(current_dir) or os.path.exists(projectpath):
         click.secho(('This project is already inialized with yanr.'), fg=const.INFO_CLR)
     else:
-        click.secho(('Enter the name of the project. press <enter> if you want to use the folder name as project name.'), fg=const.INFO_CLR)
-        proj_name = click.prompt('Project name:')
+        # click.secho(('Enter the name of the project. Leave it blank if you want to use the folder name as project name.'), fg=const.INFO_CLR)
+        # proj_name = click.prompt('Project name:')
         github = click.prompt('Is this project already on GitHub?[y,N]')
         proj_on_github = False
         if github == 'y':
@@ -48,17 +48,26 @@ def init(projectpath):
         else:
             proj_on_github = False
             
-        if proj_name != None:
-            proj_name = proj_name
-        else:
-            proj_name = os.path.basename(cwd)
-            
         if projectpath == None:
+            proj_name = os.path.basename(cwd)
             fs.create_yanr_file(cwd, proj_name, proj_on_github)
-            db().insert(proj_name, cwd, 0, datetime.datetime.now().strftime("%Y-%m-%d|%H:%M:%S"))
+            db().insert(
+                'projects',
+                project_name=proj_name, 
+                project_dir=cwd, 
+                on_github=0, 
+                add_on=datetime.datetime.now().strftime("%Y-%m-%d|%H:%M:%S")
+            )
         else:
+            proj_name = os.path.basename(projectpath)
             fs.create_yanr_file(projectpath, proj_name, proj_on_github)
-            db().insert(proj_name, projectpath, 0, datetime.datetime.now().strftime("%Y-%m-%d|%H:%M:%S"))
+            db().insert(
+                'projects',
+                project_name=proj_name, 
+                project_dir=projectpath, 
+                on_github=0, 
+                add_on=datetime.datetime.now().strftime("%Y-%m-%d|%H:%M:%S")
+            )
             
         click.secho(('Project succesfully initialezed. yanr info to view alle info about the project'), fg=const.SUCCES_CLR)
         #add it to db
@@ -69,7 +78,7 @@ def list(projectname):
     """
     list all project initialized with yarn out the database
     """
-    projects_list = db().select(False).fetchall()
+    projects_list = db().select('projects', False).fetchall()
     if projectname == None:
         projects_frame = pd.DataFrame(projects_list, columns = ['ID', 'NAME', 'PATH', 'ADDED_ON_GITHUB', 'ADD_ON'])
         print(projects_frame)
@@ -101,10 +110,15 @@ def install_yanr(operatingsys):
     #git username and password(opt)
     if operatingsys:
         os.system('pip install --editable . --user')
-        db().create_table()
     else:
         os.system('pip install --editable .')
-        db().create_table()
+        
+    db().create_tables()
+    click.secho(("Github credentials,do it later? Check yanr global-config --help"), fg=const.INFO_CLR)
+    usrname = click.prompt("Github username")
+    passwrd = click.prompt("Github psswrd")
+    db().insert('config', cli_dir=os.getcwd(),
+                github_username=usrname, github_password=passwrd, add_on=const.NOW)
         
     
 from scripts.proj_creator import *

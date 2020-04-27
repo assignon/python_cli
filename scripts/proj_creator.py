@@ -64,7 +64,7 @@ def vue_init(proj_name, osys):
 # @click.option('--hashtype', type=click.Choice(['MD5', 'SHA1'], case_sensitive=False))
 @click.argument('proj_name')
 @click.option('--path', '-pa', help='Path of the directory where the project gona be stored')
-@click.option('--operatingsys', '-os', is_flag=True, help='Give this option if your OS is Linux base distribution, it will install he packages with sudo')
+@click.option('--operatingsys', '-os', is_flag=True, help='Give this option if your OS is Linux base distribution, it will install the packages with sudo')
 @click.pass_context
 def create(ctx, proj_name, path, operatingsys):
 
@@ -166,7 +166,12 @@ def django(ctx, req, frontend, drestapi):
 
     os.system(f'pipenv run pip freeze > {req}')
     fs.create_yanr_file(os.path.join(ctx.obj['path'], ctx.obj['proj_name']), ctx.obj['proj_name'], False)
-    db().insert(ctx.obj['proj_name'], ctx.obj['path'], 0, datetime.datetime.now().strftime("%Y-%M-%d|%H:%M:%S"))
+    db().insert(
+        'projects',
+        project_name=ctx.obj['proj_name'], 
+        project_dir=ctx.obj['path'], 
+        on_github=0, 
+        add_on=datetime.datetime.now().strftime("%Y-%m-%d|%H:%M:%S"))
     # create_with_git()
     
 
@@ -211,7 +216,13 @@ def vue(ctx):
     fs.check_path(ctx.obj['proj_name'], ctx.obj['path'], True)
     vue_init(proj_name, ctx.obj['operatingsys'])
     fs.create_yanr_file(os.path.join(ctx.obj['path'], ctx.obj['proj_name']), ctx.obj['proj_name'], False)
-    db().insert(ctx.obj['proj_name'], ctx.obj['path'], 0, datetime.datetime.now().strftime("%Y-%M-%d|%H:%M:%S"))
+    db().insert(
+        'projects',
+        project_name=ctx.obj['proj_name'], 
+        project_dir=ctx.obj['path'], 
+        on_github=0, 
+        add_on=datetime.datetime.now().strftime("%Y-%M-%d|%H:%M:%S")
+    )
     # create_with_git()
 
 @create.command('scrp')
@@ -247,11 +258,12 @@ def scripting(ctx):
     # create_with_git()
     
 @create.command('pkg')
+@click.option('--packgmanager', '-pm', help='specify the package manager to use(ex: npm, pip etc..) depending on the language')
 @click.argument('packgs', nargs=-1)
 def packages(packgs):
     """
     Install additional packages
-    yanr packages --help for more information about packages install
+    yanr pkg --help for more information about packages install
     """
     config = fs.read_config()
     for package in packgs:
@@ -374,21 +386,33 @@ def delete_repo(ctx, reponame, password):
 @main.command()
 @click.option('--username', '-u', help='GitHub username') #help='GitHub username'
 @click.option('--password', '-p', help='GitHub password')
-@click.option('--projectdir', '-pd', help='Project directory path')
-def global_config(username, password, projectdir):
+@click.option('--yanrdir', '-yd', help='path to the cli creator')
+def global_config(username, password, yanrdir):
     """
     Set your Github username, password  the directory where you want your projects to be stored as default
     so you don't have to do it anytime you create a new project. 
     """
-    config = fs.read_config()
-    if username != None and password != None and projectdir != None:
-        fs.update_configFile('username', username)
-        fs.update_configFile('password', password)
-        fs.update_configFile('project_dir', projectdir)
-    else:
-        click.secho(('None of the option is given, see'), fg=const.INFO_CLR)
-        click.secho(('yanr global_config --help'), fg=const.CMD_CLR)
-        click.secho(('for more information'), fg=const.INFO_CLR)
+    if username != None:
+        db().update('config', 1, github_username=username, add_on=const.NOW)
+        click.secho(('github username updated...'), fg=const.SUCCES_CLR)
+        
+    if password != None:
+        db().update('config', 1, github_password=password, add_on=const.NOW)
+        click.secho(('github password updated...'), fg=const.SUCCES_CLR)
+        
+    if yanrdir != None:
+        db().update('config', 1, cli_dir=yanrdir, add_on=const.NOW)
+        click.secho(('cli creator path updated...'), fg=const.SUCCES_CLR)
+
+    # config = fs.read_config()
+    # if username != None and password != None and projectdir != None:
+    #     fs.update_configFile('username', username)
+    #     fs.update_configFile('password', password)
+    #     fs.update_configFile('project_dir', projectdir)
+    # else:
+    #     click.secho(('None of the option is given, see'), fg=const.INFO_CLR)
+    #     click.secho(('yanr global_config --help'), fg=const.CMD_CLR)
+    #     click.secho(('for more information'), fg=const.INFO_CLR)
         
 # @main.command()
 # def go():
