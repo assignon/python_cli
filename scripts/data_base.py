@@ -1,5 +1,6 @@
 import sqlite3
 import datetime
+from modules.decorators import *
 
 
 class DataBase:
@@ -9,57 +10,28 @@ class DataBase:
         self.cursor = self.conn.cursor()
         # self.create_tables()
 
-    def create_tables(self):
-        self.project_table()
-        self.config_table()
-        self.project_folder()
-        self.cursor.close()
-
-    def project_table(self):
-        try:
-            self.cursor.execute('''CREATE TABLE projects
-                (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    project_name   CHAR(50)   NOT NULL,
-                    project_dir    CHAR(100)  NOT NULL,
-                    on_github      BOOLEAN,
-                    add_on         DATETIME
-                );
-            ''')
-        except sqlite3.OperationalError as e:
-            print(e)
-
-    def config_table(self):
-        try:
-            self.cursor.execute('''CREATE TABLE config
-                    (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        cli_dir   CHAR(100)   NOT NULL,
-                        github_username       CHAR(100)  NOT NULL,
-                        github_password       CHAR(100)  NOT NULL,
-                        add_on                DATETIME 
-                    );
-                ''')
-        except sqlite3.OperationalError as e:
-            print(e)
-
-    def project_folder(self):
-        """folder where the projects are stored.
-        """
-        try:
-            self.cursor.execute('''CREATE TABLE folders
-                (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    project_folders  CHAR(100)  NOT NULL,
-                    add_on                DATETIME 
-                );
-            ''')
-        except sqlite3.OperationalError as e:
-            print(e)
+    # def create_tables(self):
+    #     self.project_table()
+    #     self.config_table()
+    #     self.project_folder()
+    #     self.cursor.close()
 
     def db_instance(self):
         return self.cursor
+    
+    def conn_instance(self):
+        return self.conn
+    
+    def row_count(self, table_name, **kwargs):
+        for row_name, values in kwargs.items():
+            # row_name, values = kwargs.items()
+            counts = self.cursor.execute(f"SELECT COUNT(*) FROM {table_name} WHERE {row_name}=?",
+            [values]).fetchall()[0]
 
+            self.conn.commit()
+        return counts[0]
+        
+        
     def select(self, table_name, prepare, **kwargs):
         """
         @prepare(bool): determine if the query is a prepare statement or not
@@ -83,6 +55,7 @@ class DataBase:
         Arguments:
             self {[class instance]} -- [reference to current class]
             table_name {string} -- [DB table name]
+        @return iserted record ID
         """
         rows = []
         vals = []
@@ -90,14 +63,15 @@ class DataBase:
             rows.append(row_name)
             vals.append(values)
 
-        self.cursor.execute(
+        inserting = self.cursor.execute(
             "INSERT INTO {} {} \
             VALUES {}".format(table_name, tuple(rows), tuple(vals))
         )
 
         self.conn.commit()
         print('record added')
-        self.cursor.close()
+        # self.cursor.close()
+        return inserting
 
     def update(self, table_name, condition, **kwargs):
         """update data in DB
@@ -125,6 +99,13 @@ class DataBase:
 
     def drop_table(self, tablename):
         self.cursor.execute("DROP TABLE {}".format(tablename))
+
+    
+# select = DataBase().select('folders', True, folder_path='/home/yanick.py/Dev')
+# print(select.fetchone()[0])
+    
+# print(DataBase().row_count('projects', 
+#                      project_name='test'))
 
 # now = datetime.datetime.now()
 # DataBase().create_table()

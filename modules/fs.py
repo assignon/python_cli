@@ -13,36 +13,53 @@ def check_dir(name, path, directory):
             os.chdir(os.path.join(path, name))
         click.secho(('Project Directory create succesfully'), fg=const.SUCCES_CLR, bold=True)
         
-def check_path(proj_name, path, directory):
+def check_path(path, inverse):
+    """check the existing of the project path before create it
+
+    Arguments:
+        path {[str]} -- [the project parent directory path]
+        inverse {[bool]} -- [inverse the behavior of the check_path()]
+
+    Returns:
+        [bool] -- [true if path exist else false]
+    """
     status = False
     if os.path.exists(path):
-        check_dir(proj_name, path, directory)
         status = True
+        if inverse:
+            click.secho((f'Directory {path} already exist choose another'), fg=const.ERROR_CLR, bold=True)
+            while True:
+                project_path = click.prompt('Enter new path')
+                if os.path.exists(project_path):
+                    status = True
+                    break
+                else:
+                    status = False
+                    click.secho((f'Directory {project_path} don t exist choose another'), fg=const.ERROR_CLR, bold=True)
     else:
         status = False
         click.secho((f'Directory {path} don t exist choose another'), fg=const.ERROR_CLR, bold=True)
         while True:
             project_path = click.prompt('Enter your path')
             if os.path.exists(project_path):
-                check_dir(proj_name, project_path, directory)
                 status = True
                 break
             else:
-                status = False
-                click.secho((f'Directory {project_path} don t exist choose another'), fg=const.ERROR_CLR, bold=True)
+                    status = False
+                    click.secho((f'Directory {project_path} don t exist choose another'), fg=const.ERROR_CLR, bold=True)
     return status
 
-def update_configFile(key, value):
-    try:
-        with open (const.CONFIG_PATH, 'r') as f:
-            data = json.load(f)
-            # print(data['project_dir'])
-            data[key] = value
-            with open(const.CONFIG_PATH, 'w') as fw:
-                json.dump(data, fw)
-    except FileNotFoundError as e:
-        print(e)
-        user_path = click.prompt('Enter the path to the python_cli folder')
+# def update_configFile(key, value):
+#     try:
+#         with open (const.CONFIG_PATH, 'r') as f:
+#             data = json.load(f)
+#             # print(data['project_dir'])
+#             data[key] = value
+#             with open(const.CONFIG_PATH, 'w') as fw:
+#                 json.dump(data, fw)
+#     except FileNotFoundError as e:
+#         print(e)
+#         user_path = click.prompt('Enter the path to the python_cli folder')
         
 def update_yamlFile(path, key, value):
     try:
@@ -56,14 +73,14 @@ def update_yamlFile(path, key, value):
         print(e)
         user_path = click.prompt('Enter the path to the python_cli folder')
             
-def read_config():
-    try:
-        with open(const.CONFIG_PATH, 'r') as f:
-            config = json.load(f)
-        return config
-    except FileNotFoundError as e:
-        print(e)
-        user_path = click.prompt('Enter the path to the python_cli folder')
+# def read_config():
+#     try:
+#         with open(const.CONFIG_PATH, 'r') as f:
+#             config = json.load(f)
+#         return config
+#     except FileNotFoundError as e:
+#         print(e)
+#         user_path = click.prompt('Enter the path to the python_cli folder')
         
 def read_yaml(path):
     try:
@@ -74,30 +91,30 @@ def read_yaml(path):
         print(e)
         user_path = click.prompt('Enter the path to the python_cli folder')
 
-def store_data(ctx, path, proj_name):
-    ctx.obj['proj_name'] = proj_name
-    ctx.obj['path'] = path
-    #update config file
-    # update_configFile('project_name', proj_name)
-    # update_configFile('yanr_init', True)
-    if path != None:
-        ctx.obj['path'] = path 
-        update_configFile('project_dir', path)
-        # update_configFile('current_project_dir', os.path.join(path, proj_name))
-    else:
-        user_path = click.prompt('Enter the path to the directory where you want the project to be stored')
-        update_configFile('project_dir', user_path)
-        # update_configFile('current_project_dir', os.path.join(user_path, proj_name))
-        ctx.obj['path'] = user_path 
+# def store_data(ctx, path, proj_name):
+#     ctx.obj['proj_name'] = proj_name
+#     ctx.obj['path'] = path
+#     #update config file
+#     # update_configFile('project_name', proj_name)
+#     # update_configFile('yanr_init', True)
+#     if path != None:
+#         ctx.obj['path'] = path 
+#         update_configFile('project_dir', path)
+#         # update_configFile('current_project_dir', os.path.join(path, proj_name))
+#     else:
+#         user_path = click.prompt('Enter the path to the directory where you want the project to be stored')
+#         update_configFile('project_dir', user_path)
+#         # update_configFile('current_project_dir', os.path.join(user_path, proj_name))
+#         ctx.obj['path'] = user_path 
             
-def store_dataIn_configFile(ctx, path, proj_name):
-    config = read_config()
-    if os.path.exists(path):
-        store_data(ctx, path, proj_name)
-    else:
-        #if the path don't exist, the project are been sended to
-        #the framework function and is checked again with the fs.check_path function.
-        store_data(ctx, path, proj_name)
+# def store_dataIn_configFile(ctx, path, proj_name):
+#     config = read_config()
+#     if os.path.exists(path):
+#         store_data(ctx, path, proj_name)
+#     else:
+#         #if the path don't exist, the project are been sended to
+#         #the framework function and is checked again with the fs.check_path function.
+#         store_data(ctx, path, proj_name)
         
 def create_yanr_file(path, proj_name, on_github):
     with open(os.path.join(path, '.yaml'), 'w') as f:
