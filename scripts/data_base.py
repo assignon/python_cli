@@ -32,17 +32,26 @@ class DataBase:
         return counts[0]
         
         
-    def select(self, table_name, prepare, **kwargs):
+    def select(self, table_name, prepare, *args, **kwargs):
+        """[execute the DB select statement]
+
+        Arguments:
+            table_name {[str]} -- [name of table]
+            prepare {[bool]} -- [determine if the query is a prepare statement or not]
+            *args{[str]} -- [row name]
+            **kwargs{[dict]} -- [a dict of the query where conditions]
+
+        Returns:
+            [list] -- [return data from DB base on the query]
         """
-        @prepare(bool): determine if the query is a prepare statement or not
-        @kwargs: a dict of the query where conditions
-        """
+        selected_rows = '*' if len(args) == 0 else ','.join([*args])
         if prepare:
             for row_name, value in kwargs.items():
                 data = self.cursor.execute(
-                    "SELECT * from {} WHERE {}=?".format(table_name, row_name), [value])
+                    "SELECT {} from {} WHERE {}=?".format(selected_rows, table_name, row_name), [value])
         else:
-            data = self.cursor.execute("SELECT * from {}".format(table_name))
+            print(selected_rows)
+            data = self.cursor.execute("SELECT {} from {}".format(selected_rows, table_name))
 
         self.conn.commit()
         return data

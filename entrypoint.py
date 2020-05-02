@@ -6,7 +6,7 @@ import pandas as pd
 
 @click.group()
 @click.version_option(version='0.1.0', prog_name='Project creator')
-@click.option('--name', '-n', default='Yanick le pythonier', help='Creator name')
+@click.option('--name', '-n', default='Yanick Assignon', help='Creator name')
 def main(name):
     click.echo(f'Welcom scripter, developer, programmer and automater {name}')
     # config = fs.read_config()
@@ -67,10 +67,27 @@ def list(projectname):
     """
     list all project initialized with yarn out the database
     """
-    projects_list = db().select('projects', False).fetchall()
+    projects_list = db().select('projects', False, 
+                                'project_name', 
+                                'project_dir', 
+                                'repository_name', 
+                                'on_github', 
+                                'folder_id', 
+                                'add_on').fetchall()
+    print(projects_list)
     if projectname == None:
-        projects_frame = pd.DataFrame(projects_list, columns = ['ID', 'NAME', 'PATH', 'REPO_NAME' 'ADDED_ON_GITHUB', 'ADD_ON'])
+        projects_frame = pd.DataFrame.from_records(projects_list, 
+                                      columns = [
+                                                'ID',
+                                                 'NAME', 
+                                                 'PATH', 
+                                                 'REPO_NAME' 
+                                                 'ADDED_ON_GITHUB', 
+                                                 'FOLDER_ID', 
+                                                 'ADD_ON']
+                                      )
         print(projects_frame)
+        print(projects_frame.columns)
     else:
         conn = db().db_instance()
         get_one = conn.execute("SELECT * from projects WHERE project_name=?", [projectname])
