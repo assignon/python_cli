@@ -33,13 +33,13 @@ For Linux and Mac users </br>
 python entrypoint.py install-yanr -os </br>
 (if you run it from a venv, run it without -os) </br>
 
-Now the installation is done you ca go a head and run it fron everywhere in le cmd with </br>
-yanr --help for more information about how you can use it.</br> 
+Now the installation is done you can go a head and run it fron everywhere in the cmd with </br>
+yanr --help for more information about how to use it.</br> 
 
 CHANGE yanr DEFAULT COMMAND </br>
-If you want to change yanr to your own en use something like: mycmmd --help </br>
-you can edit the setup.py file in the prthon_cli folder. Just open it in a text editor </br> 
-and change the where ever yanr is with your own.</br> 
+If you want to change yanr to your own en use something like: mycli --help for example </br>
+just edit the setup.py file in the prthon_cli folder. Just open it in a text editor </br> 
+and change the wherever yanr is with your own.</br> 
 
 Save the file and run this command from the cmd:</br> 
 For Windows users:</br> 
